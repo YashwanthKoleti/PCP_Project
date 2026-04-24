@@ -7,6 +7,15 @@
 using Complex = std::complex<double>;
 const double PI = std::acos(-1.0);
 
+struct Loop
+{
+    int start;
+    int end;
+    std::vector<Complex> *a;
+    int len;
+    int step;
+};
+
 void bitReverse(std::vector<Complex> &a)
 {
     int n = a.size();
@@ -29,48 +38,12 @@ void bitReverse(std::vector<Complex> &a)
     }
 }
 
-struct ThreadData
-{
-    int i;
-    int n;
-};
-
-struct Loop
-{
-    int start;
-    int end;
-    std::vector<Complex> *a;
-    int len;
-    int step;
-};
-
-void *worker(void *arg)
-{
-    ThreadData *data = (ThreadData *)arg;
-    int i = data->i;
-    int n = data->n;
-
-    double angle = -2.0 * PI * i / n;
-    roots[i] = Complex(std::cos(angle), std::sin(angle));
-
-    return nullptr;
-}
-
 std::vector<Complex> roots;
-void precompute(int n)
-{
-    std::vector<pthread_t> threads(n);
-    std::vector<ThreadData> args(n);
-
-    for (int i = 0; i < n; i++)
-    {
-        args[i] = {i, n};
-        pthread_create(&threads[i], nullptr, worker, &args[i]);
-    }
-
-    for (int i = 0; i < n; i++)
-    {
-        pthread_join(threads[i], nullptr);
+void precompute(int n) {
+    roots.resize(n);
+    for (int i = 0; i < n; i++) {
+        double angle = -2.0 * PI * i / n;
+        roots[i] = Complex(std::cos(angle), std::sin(angle));
     }
 }
 
@@ -132,19 +105,21 @@ void fftIterative(std::vector<Complex> &a, int NUM_THREAD)
 
 int main()
 {
-
-    std::vector<Complex> signal = {
-        {1.0, 0.0}, {1.0, 0.0}, {1.0, 0.0}, {1.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
-
-    std::cout << "Original Signal (Time Domain):\n";
-    for (const auto &val : signal)
-    {
-        std::cout << val.real() << " ";
-    }
-    std::cout << "\n\n";
-    int n = signal.size();
     int NUM_THREADS;
     std::cin >> NUM_THREADS;
+
+    int signal_lenght;
+    std::cin>>signal_lenght;
+    std::vector<Complex> signal(signal_lenght);
+    for(int i = 0;i < signal_lenght;i++)
+    {
+        double x;
+        std::cin >> x;
+        signal[i] = Complex(x, 0.0);
+    }
+
+    int n = signal.size();
+    
 
     roots.resize(n);
     fftIterative(signal, NUM_THREADS);
