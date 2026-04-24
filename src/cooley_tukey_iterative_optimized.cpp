@@ -7,31 +7,46 @@
 using Complex = std::complex<double>;
 const double PI = std::acos(-1.0);
 
-void bitReverse(std::vector<Complex>& a) {
+void bitReverse(std::vector<Complex> &a)
+{
     int n = a.size();
     int j = 0;
-    
-    for (int i = 1; i < n; i++) {
+
+    for (int i = 1; i < n; i++)
+    {
         int bit = n >> 1;
-        while (j & bit) {
+        while (j & bit)
+        {
             j ^= bit;
             bit >>= 1;
         }
         j ^= bit;
-        
-        if (i < j) {
+
+        if (i < j)
+        {
             std::swap(a[i], a[j]);
         }
     }
 }
 
-struct ThreadData {
+struct ThreadData
+{
     int i;
     int n;
 };
 
-void* worker(void* arg) {
-    ThreadData* data = (ThreadData*)arg;
+struct Loop
+{
+    int start;
+    int end;
+    std::vector<Complex> *a;
+    int len;
+    int step;
+};
+
+void *worker(void *arg)
+{
+    ThreadData *data = (ThreadData *)arg;
     int i = data->i;
     int n = data->n;
 
@@ -47,83 +62,101 @@ void precompute(int n)
     std::vector<pthread_t> threads(n);
     std::vector<ThreadData> args(n);
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
+    {
         args[i] = {i, n};
         pthread_create(&threads[i], nullptr, worker, &args[i]);
     }
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
+    {
         pthread_join(threads[i], nullptr);
     }
 }
 
-void opti(std::vector<Complex>& a,int i, int len, int step)
+void *opti(void *args)
 {
-    // Perform the butterfly operation on the two halves of the chunk
-            for (int j = 0; j < len / 2; ++j) {
-                Complex u = a[i + j];
-                Complex v = a[i + j + len / 2] * roots[j*step];
-                
-                a[i + j] = u + v;
-                a[i + j + len / 2] = u - v;
-            }
+    Loop *para = (Loop *)args;
+    std::vector<Complex> &a = *(para->a);
+    int len = para->len;
+    int step = para->step;
+    int start = para->start;
+    int end = para->end;
+
+    for (int i = start; i < end; i += len)
+    {
+        for (int j = 0; j < len / 2; ++j)
+        {
+            Complex u = a[i + j];
+            Complex v = a[i + j + len / 2] * roots[j * step];
+
+            a[i + j] = u + v;
+            a[i + j + len / 2] = u - v;
+        }
+    }
+
+    return nullptr;
 }
 
-// Iterative Cooley-Tukey Radix-2 FFT algorithm
-void fftIterative(std::vector<Complex>& a) {
+void fftIterative(std::vector<Complex> &a, int NUM_THREAD)
+{
     int n = a.size();
 
-
-    // Precompute all roots of unity
-
-    // Step 1: Rearrange array elements based on bit-reversed indices
     bitReverse(a);
+    precompute(n);
 
-    // Step 2: Bottom-up butterfly operations
-    // 'len' represents the size of the sub-problem we are currently solving (2, 4, 8, 16...)
-    for (int len = 2; len <= n; len <<= 1) {
+    std::vector<pthread_t> loop_thread(NUM_THREAD);
+    std::vector<Loop> thread_data(NUM_THREAD);
+
+    for (int len = 2; len <= n; len <<= 1)
+    {
         int step = n / len;
+        int chunk = (step + NUM_THREAD - 1) / NUM_THREAD;
 
-        // Iterate through the array in chunks of size 'len'
-        for (int i = 0; i < n; i += len) {
-            
-            // Perform the butterfly operation on the two halves of the chunk
-            for (int j = 0; j < len / 2; ++j) {
-                Complex u = a[i + j];
-                Complex v = a[i + j + len / 2] * roots[j*step];
-                
-                a[i + j] = u + v;
-                a[i + j + len / 2] = u - v;
-            }
+        for (int i = 0; i < NUM_THREAD; i++)
+        {
+            thread_data[i].start = i * chunk;
+            thread_data[i].end = std::min((i + 1) * chunk, n);
+            thread_data[i].a = &a;
+            thread_data[i].len = len;
+            thread_data[i].step = step;
+            pthread_create(&loop_thread[i], NULL, opti, &thread_data[i]);
+        }
+
+        for (int i = 0; i < NUM_THREAD; i++)
+        {
+            pthread_join(loop_thread[i], NULL);
         }
     }
 }
 
-int main() {
-    // Example input: Signal size MUST be a power of 2
+int main()
+{
+
     std::vector<Complex> signal = {
-        {1.0, 0.0}, {1.0, 0.0}, {1.0, 0.0}, {1.0, 0.0},
-        {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}
-    };
+        {1.0, 0.0}, {1.0, 0.0}, {1.0, 0.0}, {1.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
 
     std::cout << "Original Signal (Time Domain):\n";
-    for (const auto& val : signal) {
+    for (const auto &val : signal)
+    {
         std::cout << val.real() << " ";
     }
     std::cout << "\n\n";
     int n = signal.size();
+    int NUM_THREADS;
+    std::cin >> NUM_THREADS;
 
-    // Perform Iterative FFT
     roots.resize(n);
-    fftIterative(signal);
+    fftIterative(signal, NUM_THREADS);
 
     std::cout << "FFT Result (Frequency Domain):\n";
-    for (const auto& val : signal) {
-        // Cleaning up output to handle very small floating point inaccuracies
+    for (const auto &val : signal)
+    {
+
         double real = (std::abs(val.real()) < 1e-10) ? 0.0 : val.real();
         double imag = (std::abs(val.imag()) < 1e-10) ? 0.0 : val.imag();
-        
-        std::cout << "(" << std::fixed << std::setprecision(4) << real 
+
+        std::cout << "(" << std::fixed << std::setprecision(4) << real
                   << ", " << imag << ")\n";
     }
 
