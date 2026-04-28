@@ -81,8 +81,7 @@ int main()
 
     std::cout << "\n\n";
 
-    
-     auto start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
     fftIterative(signal);
     auto end = std::chrono::high_resolution_clock::now();
 
