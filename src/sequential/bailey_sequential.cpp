@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iomanip>
 #include <chrono>
+#include <random>
 
 using Complex = std::complex<double>;
 const double PI = std::acos(-1.0);
@@ -104,18 +105,18 @@ void baileyFFT(std::vector<Complex> &a, int n) {
 }
 
 int main() {
-    int n;
-    if (!(std::cin >> n)) return 0;
-
-    std::vector<Complex> signal(n);
-    for (int i = 0; i < n; i++) {
-        double x;
-        std::cin >> x;
-        signal[i] = Complex(x, 0.0);
+    int signal_lenght;
+    std::cin>>signal_lenght;
+    std::vector<Complex> signal(signal_lenght);
+    std::mt19937 gen(42); 
+    std::uniform_real_distribution<double> dist(-100.0, 100.0);
+    
+    for (int i = 0; i < signal_lenght; i++) {
+        signal[i] = Complex(dist(gen), 0.0);
     }
 
     auto start = std::chrono::high_resolution_clock::now();
-    baileyFFT(signal, n);
+    baileyFFT(signal, signal_lenght);
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> elapsed = end - start;

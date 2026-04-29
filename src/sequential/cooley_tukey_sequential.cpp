@@ -3,6 +3,7 @@
 #include <complex>
 #include <cmath>
 #include <iomanip>
+#include <random>
 
 using Complex = std::complex<double>;
 
@@ -39,14 +40,14 @@ void fft(std::vector<Complex> &a)
 }
 
 int main() {
-    int n;
-    std::cin >> n;
-
-    std::vector<Complex> signal(n);
-    for (int i = 0; i < n; i++) {
-        double x;
-        std::cin >> x;
-        signal[i] = Complex(x, 0.0);
+    int signal_lenght;
+    std::cin>>signal_lenght;
+    std::vector<Complex> signal(signal_lenght);
+    std::mt19937 gen(42); 
+    std::uniform_real_distribution<double> dist(-100.0, 100.0);
+    
+    for (int i = 0; i < signal_lenght; i++) {
+        signal[i] = Complex(dist(gen), 0.0);
     }
 
     auto start = std::chrono::high_resolution_clock::now();
