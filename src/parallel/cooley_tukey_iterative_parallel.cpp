@@ -139,7 +139,13 @@
 using Complex = std::complex<double>;
 const double PI = std::acos(-1.0);
 
-// --- Apple Compatibility for pthread_barrier ---
+// Precomputed roots stored contiguously per stage for cache locality.
+// Layout: for stage with len, roots are at offset (len/2 - 1), length len/2.
+// Total size: n - 1 entries for all stages combined... 
+// Simpler: just store n/2 roots for the finest resolution, index with stride.
+// Actually, for best cache behavior, store per-stage contiguous blocks.
+
+// Add after includes, before everything else
 #ifdef __APPLE__
 typedef struct {
     pthread_mutex_t mutex;
@@ -181,7 +187,6 @@ int pthread_barrier_destroy(pthread_barrier_t *b) {
     return 0;
 }
 #endif
-// ---------------------------------------------
 
 struct StageRoots {
     int offset;  // offset into flat array
@@ -192,6 +197,7 @@ std::vector<Complex> all_roots;
 std::vector<StageRoots> stage_info;
 
 void precomputeAllRoots(int n) {
+    // Total roots needed: sum of len/2 for len=2,4,...,n = n - 1
     all_roots.resize(n);
     stage_info.clear();
     
@@ -224,7 +230,7 @@ void bitReverse(std::vector<Complex> &a) {
 struct ThreadArgs {
     int tid;
     int num_threads;
-    Complex *a;          // raw pointer to avoid vector overhead
+    Complex *a;          // raw pointer, avoid vector indirection
     int n;
     int num_stages;
     pthread_barrier_t *barrier;
@@ -238,32 +244,30 @@ void *fft_worker(void *arg) {
     const int n   = ctx->n;
     pthread_barrier_t *barrier = ctx->barrier;
 
-    // Calculate this thread's workload once per thread, not per stage.
-    // Total butterflies per stage is always n / 2
-    const int total_butterflies = n / 2;  
-    int bpt = total_butterflies / T;
-    int rem = total_butterflies % T;
-    int b_start, b_end;
-    
-    if (tid < rem) {
-        b_start = tid * (bpt + 1);
-        b_end   = b_start + bpt + 1;
-    } else {
-        b_start = tid * bpt + rem;
-        b_end   = b_start + bpt;
-    }
-
     for (int s = 0; s < ctx->num_stages; s++) {
-        const int half   = stage_info[s].count;       
+        const int half   = stage_info[s].count;       // len/2
         const int len    = half << 1;
-        const int roff   = stage_info[s].offset;      
+        const int roff   = stage_info[s].offset;      // root offset
+        const int num_groups = n / len;
+        const int total_butterflies = num_groups * half;  // = n/2 always
 
-        // OPTIMIZATION 1: Calculate 2D indices outside the loop
-        // This completely eliminates integer division and modulo in the inner loop.
-        int g = b_start / half;
-        int j = b_start % half;
+        // Distribute butterflies evenly across threads.
+        // Each butterfly is independent within a stage.
+        int bpt = total_butterflies / T;
+        int rem = total_butterflies % T;
+        int b_start, b_end;
+        
+        if (tid < rem) {
+            b_start = tid * (bpt + 1);
+            b_end   = b_start + bpt + 1;
+        } else {
+            b_start = tid * bpt + rem;
+            b_end   = b_start + bpt;
+        }
 
         for (int b = b_start; b < b_end; b++) {
+            int g = b / half;
+            int j = b % half;
             int base = g * len;
             int idx = base + j;
             
@@ -271,16 +275,8 @@ void *fft_worker(void *arg) {
             Complex v = a[idx + half] * all_roots[roff + j];
             a[idx]        = u + v;
             a[idx + half] = u - v;
-
-            // Increment local coordinates directly
-            j++;
-            if (j == half) {
-                j = 0;
-                g++;
-            }
         }
 
-        // Wait for all threads to finish the current stage
         pthread_barrier_wait(barrier);
     }
     return nullptr;
@@ -288,13 +284,6 @@ void *fft_worker(void *arg) {
 
 void fftIterative(std::vector<Complex> &a, int NUM_THREADS) {
     int n = a.size();
-    
-    // Check if N is a power of 2 (Required for Radix-2 DIT FFT)
-    if ((n & (n - 1)) != 0) {
-        std::cerr << "Error: Signal size N must be a power of 2." << std::endl;
-        return;
-    }
-
     bitReverse(a);
     precomputeAllRoots(n);
 
@@ -319,13 +308,15 @@ void fftIterative(std::vector<Complex> &a, int NUM_THREADS) {
 }
 
 int main() {
-    int n;
-    if (!(std::cin >> n)) return 0;
-    
-    int nthreads;
-    if (!(std::cin >> nthreads)) return 0;
-
+     int n;
+    std::cin >> n;
     std::vector<Complex> signal(n);
+    // for (int i = 0; i < n; i++) {
+    //     double x; std::cin >> x;
+    //     signal[i] = Complex(x, 0.0);
+    // }
+    int nthreads;
+    std::cin >> nthreads;
     std::mt19937 gen(42); 
     std::uniform_real_distribution<double> dist(-100.0, 100.0);
     
@@ -338,7 +329,14 @@ int main() {
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> elapsed = end - start;
-    std::cout << "Time: " << std::fixed << std::setprecision(6) << elapsed.count() << " seconds\n";
+    std::cout << "Time: " << elapsed.count() << " seconds\n";
+
+    // for (const auto &val : signal) {
+    //     double real = (std::abs(val.real()) < 1e-10) ? 0.0 : val.real();
+    //     double imag = (std::abs(val.imag()) < 1e-10) ? 0.0 : val.imag();
+    //     std::cout << "(" << std::fixed << std::setprecision(4)
+    //               << real << ", " << imag << ")\n";
+    // }
 
     return 0;
 }

@@ -27,7 +27,7 @@ void fftParallel(vector<Complex> &a, int n, int available_threads)
         odd[i] = a[i * 2 + 1];
     }
 
-    if (available_threads >= 2 && n > 32768)
+    if (available_threads >= 2 && n > 2048)
     {
 
         int threads_for_even = available_threads / 2;
