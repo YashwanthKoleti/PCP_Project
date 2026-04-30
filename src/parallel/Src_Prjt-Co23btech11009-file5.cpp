@@ -1,3 +1,5 @@
+// cooley tukey Iterative Parallel with pthreads
+
 #include <pthread.h>
 #include <chrono>
 #include <cmath>

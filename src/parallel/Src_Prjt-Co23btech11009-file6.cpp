@@ -1,3 +1,5 @@
+// Bailey’s Parallel Algorithm
+
 #include <iostream>
 #include <vector>
 #include <complex>

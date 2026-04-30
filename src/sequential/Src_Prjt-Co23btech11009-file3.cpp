@@ -1,3 +1,5 @@
+// Sequential Bailey’s Algorithm
+
 #include <iostream>
 #include <vector>
 #include <complex>

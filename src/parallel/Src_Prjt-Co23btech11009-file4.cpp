@@ -1,3 +1,5 @@
+// cooley tukey recursive parallel with std::thread
+
 #include <iostream>
 #include <vector>
 #include <complex>
