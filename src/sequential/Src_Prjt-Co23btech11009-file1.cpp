@@ -7,6 +7,8 @@
 #include <iomanip>
 #include <random>
 #include <chrono>
+#include <iomanip>
+#include <cmath>
 
 using namespace std;
 
@@ -67,6 +69,15 @@ int main() {
 
     chrono::duration<double> elapsed = end - start;
     cout << "Time: " << elapsed.count() << " seconds\n";
+
+    // for (const auto& val : signal) {
+
+    //     double real = (abs(val.real()) < 1e-10) ? 0.0 : val.real();
+    //     double imag = (abs(val.imag()) < 1e-10) ? 0.0 : val.imag();
+
+    //     cout << "(" << fixed << setprecision(4) << real
+    //               << ", " << imag << ")\n";
+    // }
 
     return 0;
 }

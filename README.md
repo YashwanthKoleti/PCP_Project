@@ -53,7 +53,7 @@ Sample input:
 8
 ```
 
-Parallel recursive and iterative programs `file4` and `file5` read `N` and number of threads.
+All parallel programs `file4`, `file5` and `file6` read `N` and number of threads.
 
 ```bash
 ./file4
@@ -64,27 +64,6 @@ Sample input:
 ```txt
 8
 4
-```
-
-Parallel Bailey program `file6` reads `N`, number of threads, and `N` real signal values.
-
-```bash
-./file6
-```
-
-Sample input:
-
-```txt
-8
-4
-1.0
-2.0
-3.0
-4.0
-5.0
-6.0
-7.0
-8.0
 ```
 
 ## Output
@@ -99,7 +78,7 @@ The FFT values are not printed because the programs are used for timing experime
 
 ## Signal Input Note
 
-Most programs currently do not take the full signal values as input. They generate the signal internally using a fixed random seed. If custom signal input is required, uncomment the signal input loop inside the `main()` function of the corresponding file:
+Most programs currently do not take the full signal values as input. They generate the signal internally using a fixed random seed or leave it zero initialized. If custom signal input is required, uncomment the signal input loop inside the `main()` function of the corresponding file:
 
 ```cpp
 // for (int i = 0; i < n; i++) {
@@ -109,4 +88,15 @@ Most programs currently do not take the full signal values as input. They genera
 // }
 ```
 
-After uncommenting this block, provide `N` real values at the same position as the uncommented loop in `main()`. In `file4` and `file5`, this means the input order becomes `N`, then `N` signal values, then the number of threads.
+After uncommenting this block, provide `N` real values at the same position as the uncommented loop in `main()`. In `file4`,`file5` and `file6`, this means the input order becomes `N`, then `N` signal values, then the number of threads.
+Also uncomment the below code in `main()` for printing the output signal
+```cpp
+    // for (const auto& val : signal) {
+
+    //     double real = (abs(val.real()) < 1e-10) ? 0.0 : val.real();
+    //     double imag = (abs(val.imag()) < 1e-10) ? 0.0 : val.imag();
+
+    //     cout << "(" << fixed << setprecision(4) << real
+    //               << ", " << imag << ")\n";
+    // }
+```

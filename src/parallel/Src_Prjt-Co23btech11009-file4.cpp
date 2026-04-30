@@ -8,6 +8,8 @@
 #include <chrono>
 #include <random>
 #include <iomanip>
+#include <iomanip>
+#include <cmath>
 using namespace std;
 
 using Complex = complex<double>;
@@ -82,7 +84,7 @@ int main()
     cout << "Time: " << elapsed.count() << " seconds\n";
 
     // for (const auto& val : signal) {
-    //     // Clean up output for floating point inaccuracies
+
     //     double real = (abs(val.real()) < 1e-10) ? 0.0 : val.real();
     //     double imag = (abs(val.imag()) < 1e-10) ? 0.0 : val.imag();
 

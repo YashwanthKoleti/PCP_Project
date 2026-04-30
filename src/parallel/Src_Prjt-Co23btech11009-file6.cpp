@@ -9,6 +9,8 @@
 #include <thread>
 #include <algorithm>
 #include <functional>
+#include <iomanip>
+#include <cmath>
 
 using namespace std;
 
@@ -194,19 +196,21 @@ int main()
 
     cin >> nthreads;
 
-    for (int i = 0; i < n; i++)
-    {
-        double x;
-        cin >> x;
-        signal[i] = Complex(x, 0.0);
-    }
-
     auto start = chrono::high_resolution_clock::now();
     baileyFFTParallel(signal, n, nthreads);
     auto end = chrono::high_resolution_clock::now();
 
     chrono::duration<double> elapsed = end - start;
     cout << "Time: " << elapsed.count() << " seconds\n";
+
+    // for (const auto& val : signal) {
+
+    //     double real = (abs(val.real()) < 1e-10) ? 0.0 : val.real();
+    //     double imag = (abs(val.imag()) < 1e-10) ? 0.0 : val.imag();
+
+    //     cout << "(" << fixed << setprecision(4) << real
+    //               << ", " << imag << ")\n";
+    // }
 
     return 0;
 }
