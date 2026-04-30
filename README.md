@@ -109,4 +109,4 @@ Most programs currently do not take the full signal values as input. They genera
 // }
 ```
 
-After uncommenting this block, provide `N` real values after the signal length in the input.
+After uncommenting this block, provide `N` real values at the same position as the uncommented loop in `main()`. In `file4` and `file5`, this means the input order becomes `N`, then `N` signal values, then the number of threads.
