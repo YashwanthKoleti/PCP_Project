@@ -6,15 +6,15 @@ This project contains sequential and parallel C++ implementations of FFT. Result
 
 Sequential implementations:
 
-- `src/sequential/Src_Prjt-Co23btech11009-file1.cpp` - Recursive Cooley-Tukey FFT
-- `src/sequential/Src_Prjt-Co23btech11009-file2.cpp` - Iterative Cooley-Tukey FFT
-- `src/sequential/Src_Prjt-Co23btech11009-file3.cpp` - Sequential Bailey FFT
+- `Src_Prjt-Co23btech11009-file1.cpp` - Recursive Cooley-Tukey FFT
+- `Src_Prjt-Co23btech11009-file2.cpp` - Iterative Cooley-Tukey FFT
+- `Src_Prjt-Co23btech11009-file3.cpp` - Sequential Bailey FFT
 
 Parallel implementations:
 
-- `src/parallel/Src_Prjt-Co23btech11009-file4.cpp` - Parallel recursive Cooley-Tukey FFT
-- `src/parallel/Src_Prjt-Co23btech11009-file5.cpp` - Parallel iterative Cooley-Tukey FFT
-- `src/parallel/Src_Prjt-Co23btech11009-file6.cpp` - Parallel Bailey FFT
+- `Src_Prjt-Co23btech11009-file4.cpp` - Parallel recursive Cooley-Tukey FFT
+- `Src_Prjt-Co23btech11009-file5.cpp` - Parallel iterative Cooley-Tukey FFT
+- `Src_Prjt-Co23btech11009-file6.cpp` - Parallel Bailey FFT
 
 ## Requirements
 
@@ -25,16 +25,16 @@ Input size `N` should be a power of 2.
 
 ## Compilation
 
-Run these commands from the project root.
+Run these commands from the directory containing the submitted files.
 
 ```bash
-g++ src/sequential/Src_Prjt-Co23btech11009-file1.cpp -o file1 -O2 -std=c++17
-g++ src/sequential/Src_Prjt-Co23btech11009-file2.cpp -o file2 -O2 -std=c++17
-g++ src/sequential/Src_Prjt-Co23btech11009-file3.cpp -o file3 -O2 -std=c++17
+g++ Src_Prjt-Co23btech11009-file1.cpp -o file1 -O2 -std=c++17
+g++ Src_Prjt-Co23btech11009-file2.cpp -o file2 -O2 -std=c++17
+g++ Src_Prjt-Co23btech11009-file3.cpp -o file3 -O2 -std=c++17
 
-g++ src/parallel/Src_Prjt-Co23btech11009-file4.cpp -o file4 -O2 -std=c++17 -pthread
-g++ src/parallel/Src_Prjt-Co23btech11009-file5.cpp -o file5 -O2 -std=c++17 -pthread
-g++ src/parallel/Src_Prjt-Co23btech11009-file6.cpp -o file6 -O2 -std=c++17 -pthread
+g++ Src_Prjt-Co23btech11009-file4.cpp -o file4 -O2 -std=c++17 -pthread
+g++ Src_Prjt-Co23btech11009-file5.cpp -o file5 -O2 -std=c++17 -pthread
+g++ Src_Prjt-Co23btech11009-file6.cpp -o file6 -O2 -std=c++17 -pthread
 ```
 
 ## Execution
@@ -100,3 +100,17 @@ Also uncomment the below code in `main()` for printing the output signal
     //               << ", " << imag << ")\n";
     // }
 ```
+
+## Submission Contents
+
+The submitted zip file contains the following files:
+
+- `Src_Prjt-Co23btech11009-file1.cpp`
+- `Src_Prjt-Co23btech11009-file2.cpp`
+- `Src_Prjt-Co23btech11009-file3.cpp`
+- `Src_Prjt-Co23btech11009-file4.cpp`
+- `Src_Prjt-Co23btech11009-file5.cpp`
+- `Src_Prjt-Co23btech11009-file6.cpp`
+- `Readme.txt`
+- `Rpt_Prjt-Co23btech11009.pdf`
+- `Turitin_Prjt-Co23btech11009.pdf`
