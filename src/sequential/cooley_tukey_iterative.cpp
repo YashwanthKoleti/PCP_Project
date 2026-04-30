@@ -5,8 +5,10 @@
 #include <iomanip>
 #include <random>
 
-using Complex = std::complex<double>;
-const double PI = std::acos(-1.0);
+using namespace std;
+
+using Complex = complex<double>;
+const double PI = acos(-1.0);
 
 int reverseBits(int x, int logn)
 {
@@ -21,7 +23,7 @@ int reverseBits(int x, int logn)
     return result;
 }
 
-void bitReverse(std::vector<Complex> &a)
+void bitReverse(vector<Complex> &a)
 {
     int n = a.size();
     int logn = __builtin_ctz(n);
@@ -32,12 +34,12 @@ void bitReverse(std::vector<Complex> &a)
 
         if (i < j)
         {
-            std::swap(a[i], a[j]);
+            swap(a[i], a[j]);
         }
     }
 }
 
-void fftIterative(std::vector<Complex> &a)
+void fftIterative(vector<Complex> &a)
 {
     int n = a.size();
 
@@ -47,7 +49,7 @@ void fftIterative(std::vector<Complex> &a)
     {
 
         double angle = -2.0 * PI / len;
-        Complex wlen(std::cos(angle), std::sin(angle));
+        Complex wlen(cos(angle), sin(angle));
 
         for (int i = 0; i < n; i += len)
         {
@@ -71,31 +73,37 @@ int main()
 {
 
    int signal_lenght;
-    std::cin>>signal_lenght;
-    std::vector<Complex> signal(signal_lenght);
-    std::mt19937 gen(42); 
-    std::uniform_real_distribution<double> dist(-100.0, 100.0);
+    cin>>signal_lenght;
+
+    // for (int i = 0; i < n; i++) {
+    //     double x; cin >> x;
+    //     signal[i] = Complex(x, 0.0);
+    // }
+
+    vector<Complex> signal(signal_lenght);
+    mt19937 gen(42); 
+    uniform_real_distribution<double> dist(-100.0, 100.0);
     
     for (int i = 0; i < signal_lenght; i++) {
         signal[i] = Complex(dist(gen), 0.0);
     }
 
-    std::cout << "\n\n";
+    cout << "\n\n";
 
-    auto start = std::chrono::high_resolution_clock::now();
+    auto start = chrono::high_resolution_clock::now();
     fftIterative(signal);
-    auto end = std::chrono::high_resolution_clock::now();
+    auto end = chrono::high_resolution_clock::now();
 
-    std::chrono::duration<double> elapsed = end - start;
-    std::cout << "Time: " << elapsed.count() << " seconds\n";
+    chrono::duration<double> elapsed = end - start;
+    cout << "Time: " << elapsed.count() << " seconds\n";
 
     // for (const auto &val : signal)
     // {
 
-    //     double real = (std::abs(val.real()) < 1e-10) ? 0.0 : val.real();
-    //     double imag = (std::abs(val.imag()) < 1e-10) ? 0.0 : val.imag();
+    //     double real = (abs(val.real()) < 1e-10) ? 0.0 : val.real();
+    //     double imag = (abs(val.imag()) < 1e-10) ? 0.0 : val.imag();
 
-    //     std::cout << "(" << std::fixed << std::setprecision(4) << real
+    //     cout << "(" << fixed << setprecision(4) << real
     //               << ", " << imag << ")\n";
     // }
 

@@ -5,14 +5,15 @@
 #include <chrono>
 #include <random>
 #include <iomanip>
-#include <omp.h> // Include OpenMP
+#include <omp.h>
+
+using namespace std;
 
 using namespace std;
 
 using Complex = complex<double>;
 const double PI = acos(-1.0);
 
-// We no longer need to pass 'available_threads' because OpenMP handles the thread pool.
 void fftParallel(vector<Complex> &a, int n)
 {
     if (n <= 1)
@@ -28,29 +29,24 @@ void fftParallel(vector<Complex> &a, int n)
         odd[i] = a[i * 2 + 1];
     }
 
-    // Using your optimal threshold to avoid task creation overhead on small sizes
-    if (n > 32768)
+    if (n > 2048)
     {
-        // Tell OpenMP to create a task for this function call. 
-        // 'shared' ensures the task modifies the correct vectors in memory.
-        #pragma omp task shared(even)
+
+#pragma omp task shared(even)
         fftParallel(even, n / 2);
 
-        #pragma omp task shared(odd)
+#pragma omp task shared(odd)
         fftParallel(odd, n / 2);
 
-        // This is crucial: wait for both of the above tasks to finish 
-        // before proceeding to the combination step.
-        #pragma omp taskwait
+#pragma omp taskwait
     }
     else
     {
-        // Serial execution below the threshold
+
         fftParallel(even, n / 2);
         fftParallel(odd, n / 2);
-    }       
+    }
 
-    // Combine
     for (int k = 0; k < n / 2; ++k)
     {
         Complex t = polar(1.0, -2.0 * PI * k / n) * odd[k];
@@ -65,10 +61,14 @@ int main()
     cin >> n;
     vector<Complex> signal(n);
 
+    // for (int i = 0; i < n; i++) {
+    //     double x; cin >> x;
+    //     signal[i] = Complex(x, 0.0);
+    // }
+
     int nthreads;
     cin >> nthreads;
-    
-    // Configure OpenMP to use the requested number of threads
+
     omp_set_num_threads(nthreads);
 
     mt19937 gen(42);
@@ -80,19 +80,16 @@ int main()
     }
 
     auto start = chrono::high_resolution_clock::now();
-    
-    // To use Tasks in OpenMP, we must first spin up the thread pool.
-    // The 'parallel' block wakes up the threads.
-    #pragma omp parallel
+
+#pragma omp parallel
     {
-        // The 'single' block ensures only ONE thread starts the root of the recursion.
-        // That single thread will generate tasks, waking up the others to help.
-        #pragma omp single nowait
+
+#pragma omp single nowait
         {
             fftParallel(signal, n);
         }
     }
-    
+
     auto end = chrono::high_resolution_clock::now();
 
     chrono::duration<double> elapsed = end - start;

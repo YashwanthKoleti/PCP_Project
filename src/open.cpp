@@ -15,14 +15,14 @@ int main() {
         thread_id = omp_get_thread_num();
         
         // This will print out of order because threads run simultaneously
-        std::cout << "Hello from thread " << thread_id << "\n";
+        cout << "Hello from thread " << thread_id << "\n";
 
         // The 'master' block is only executed by the master thread (Thread 0)
         #pragma omp master
         {
             num_threads = omp_get_num_threads();
-            std::cout << "--- Master Thread Reporting ---\n";
-            std::cout << "Total threads in action: " << num_threads << "\n";
+            cout << "--- Master Thread Reporting ---\n";
+            cout << "Total threads in action: " << num_threads << "\n";
         }
     }
 
