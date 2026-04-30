@@ -96,3 +96,17 @@ Time: <seconds> seconds
 ```
 
 The FFT values are not printed because the programs are used for timing experiments.
+
+## Signal Input Note
+
+Most programs currently do not take the full signal values as input. They generate the signal internally using a fixed random seed. If custom signal input is required, uncomment the signal input loop inside the `main()` function of the corresponding file:
+
+```cpp
+// for (int i = 0; i < n; i++) {
+//     double x;
+//     cin >> x;
+//     signal[i] = Complex(x, 0.0);
+// }
+```
+
+After uncommenting this block, provide `N` real values after the signal length in the input.
