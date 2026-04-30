@@ -1,6 +1,6 @@
 # Parallel FFT Project
 
-This project contains sequential and parallel C++ implementations of FFT. Results, plots, and analysis are provided in `report.pdf`.
+This project contains sequential and parallel C++ implementations of FFT. Results, plots, and analysis are provided in `Rpt_Prjt-Co23btech11009.pdf`.
 
 ## Files
 
